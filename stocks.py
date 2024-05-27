@@ -4,6 +4,7 @@
 #          http://www.niklasbuehler.com/blog/momentum-investing.html           #
 ################################################################################
 
+import yfinance as yf
 from pandas_datareader import data
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -11,9 +12,12 @@ from datetime import date, datetime, timedelta
 from termcolor import colored
 import os
 import math
+import numpy as np
 
 def loadData(symbols, start_date, end_date):
-    panel_data = data.DataReader(symbols, 'yahoo', start_date, end_date)
+    # panel_data = data.DataReader(symbols, 'yahoo', start_date, end_date)
+    # panel_data = yf.download(symbols, start = '2012-01-01', end='2017-01-01')
+    panel_data = yf.download(symbols, start=start_date, end=end_date)
     close = panel_data['Close']
     all_weekdays = pd.date_range(start=start_date, end=end_date, freq='B')
     close = close.reindex(all_weekdays)
@@ -21,7 +25,9 @@ def loadData(symbols, start_date, end_date):
     return close
 
 def init(source, start_date='2000-01-01'):
-    symbols = pd.read_csv(source)["Symbol"][:100]
+    symbols_list = pd.read_csv(source)["Symbol"][:100].to_numpy()
+    symbols_list = [ticker + '.NS' for ticker in symbols_list]
+    symbols = ' '.join(symbols_list)
     end_date = date.today().strftime("%Y-%m-%d")
     print("Please wait, fetching stock data for symbols given in "+source+" for time frame "+start_date+" to "+end_date+"...")
     stocks = loadData(symbols, start_date, end_date)
@@ -253,18 +259,17 @@ def help():
     print(colored("Remember, you can use ^S and ^Q in the terminal for toggling the scroll lock. This is extremely helpful for viewing the logs of these simulations.", "white"))
     print(colored("> ", "white"), colored("strat = Strategy(stocks):", "blue"), colored("Initialize a strategy Strategy on the given stocks. Available strategies are BuyAndHoldStrategy, AbsoluteMomentumStrategy and MomentumStrategy. Some of them have some more, optional parameters.", "white"))
     print(colored("> ", "white"), colored("strat.simulate(start_date, end_date):", "blue"), colored("Simulate the strategy over the given time frame. Returns an array of the current balances of all simulated days.", "white"))
-    print()
-    print(colored("Visit ", "green"), colored("www.niklasbuehler.com/blog/momentum_investing.html", "magenta"))
-    print(colored("Contact me at ", "green"), colored("hi@niklasbuehler.com", "magenta"))
     print(colored("============", "green"))
 
-help()
-stocks = init("symbols.csv")
-print(colored(">>> stocks = init('symbols.csv')", "green"))
-
 # TODO make report a function that applies a strategy and exports the results
-#def report():
-    #print("Applying Momentum Strategy for 20 stocks")
-    #momentumStrategy(stocks, 20)
+def report():
+    print("Applying Momentum Strategy for 20 stocks")
+    momentumStrategy(stocks, 20)
     #genPortfolio(stocks)
-    #print("Exported portfolio images to export/ folder")
+    print("Exported portfolio images to export/ folder")
+
+
+help()
+stocks = init("C:\\Users\\pkmut\\Desktop\\momentum_invest_pything\\niklasbuehler\\momentum-investing-master\\nifty_200_20240526T234155.csv")
+print(colored(">>> stocks = init('symbols.csv')", "green"))
+report()
