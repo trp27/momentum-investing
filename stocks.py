@@ -25,7 +25,8 @@ def loadData(symbols, start_date, end_date):
     return close
 
 def init(source, start_date='2000-01-01'):
-    symbols_list = pd.read_csv(source)["Symbol"][:100].to_numpy()
+    # symbols_list = pd.read_csv(source)["Symbol"].to_numpy()
+    symbols_list = source["Symbol"].to_numpy()
     symbols_list = [ticker + '.NS' for ticker in symbols_list]
     symbols = ' '.join(symbols_list)
     end_date = date.today().strftime("%Y-%m-%d")
@@ -265,11 +266,21 @@ def help():
 def report():
     print("Applying Momentum Strategy for 20 stocks")
     momentumStrategy(stocks, 20)
-    #genPortfolio(stocks)
+    # genPortfolio(stocks)
     print("Exported portfolio images to export/ folder")
 
+def fetch_stock_list():
+  nifty_200_ticker_url = 'https://archives.nseindia.com/content/indices/ind_nifty200list.csv'
+  nifty_200 = pd.read_csv(nifty_200_ticker_url)
+#   curr_date_time = datetime.now().strftime('%Y%m%dT%H%M%S')
+  # nifty_200.to_csv("nifty_200_{}.csv".format(curr_date_time)) # save locally
+#   tickers = nifty_200['Symbol'].to_numpy()
+#   return [ticker + '.NS' for ticker in tickers]
+  return nifty_200
 
 help()
-stocks = init("C:\\Users\\pkmut\\Desktop\\momentum_invest_pything\\niklasbuehler\\momentum-investing-master\\nifty_200_20240526T234155.csv")
-print(colored(">>> stocks = init('symbols.csv')", "green"))
+# stocks = init("C:\\Users\\pkmut\\Desktop\\momentum_invest_pything\\niklasbuehler\\momentum-investing-master\\nifty_200_20240526T234155.csv")
+stocks = fetch_stock_list()[:10]
+stocks = init(stocks)
+# print(colored(">>> stocks = init('symbols.csv')", "green"))
 report()
